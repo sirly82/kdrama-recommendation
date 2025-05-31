@@ -44,9 +44,9 @@ def get_genres_and_title(driver, url):
         genres = [g.text.strip() for g in genre_elements]
 
         watch_elements = driver.find_elements(By.CSS_SELECTOR, '.box-body.wts a.text-primary b')
-        platform = watch_elements[0].text.strip() if watch_elements else ""
+        platforms = [w.text.strip() for w in watch_elements]
 
-        return clean_title, genres, platform
+        return clean_title, genres, platforms
     except Exception as e:
         print(f"❌ Gagal scrape {url}: {e}")
         return None, [], ""
@@ -59,7 +59,7 @@ def save_to_csv(file_path, data):
             writer.writeheader()
         writer.writerow(data)
 
-def split_genres_to_rows(input_file="kdrama_genres.csv", output_file="flat_dramas.csv"):
+def split_genres_to_rows(input_file="kdrama_genres_platforms.csv", output_file="title_genres.csv"):
     with open(input_file, newline="", encoding="utf-8") as infile, \
          open(output_file, mode="w", newline="", encoding="utf-8") as outfile:
 
@@ -73,8 +73,22 @@ def split_genres_to_rows(input_file="kdrama_genres.csv", output_file="flat_drama
             for genre in genres:
                 writer.writerow([title, genre])
 
+def split_title_platforms(input_file="kdrama_genres_platforms.csv", output_file="title_platforms.csv"):
+    with open(input_file, newline="", encoding="utf-8") as infile, \
+         open(output_file, mode="w", newline="", encoding="utf-8") as outfile:
+
+        reader = csv.DictReader(infile)
+        writer = csv.writer(outfile)
+        writer.writerow(["title", "where_to_watch"])
+
+        for row in reader:
+            title = row["title"]
+            platforms = row["where_to_watch"].split(", ")
+            for platform in platforms:
+                writer.writerow([title, platform])
+
 def main():
-    output_file = "kdrama_genres.csv"
+    output_file = "kdrama_genres_platforms.csv"
     scraped_titles = set()
 
     if os.path.exists(output_file):
@@ -86,7 +100,7 @@ def main():
 
     try:
         base_url = "https://mydramalist.com/search?adv=titles&ty=68&co=3&re=2015,2023&rt=1,10&st=3&so=top&page={}"
-        for page in range(1, 95):
+        for page in range(75, 95):
             url = base_url.format(page)
             drama_links = get_links_from_search_page(driver, url)
             if not drama_links:
@@ -99,7 +113,7 @@ def main():
                     data = {
                         "title": title,
                         "genres": ", ".join(genres),
-                        "where_to_watch": platform
+                        "where_to_watch": ", ".join(platform)
                     }
                     save_to_csv(output_file, data)
                     scraped_titles.add(title)
@@ -110,7 +124,10 @@ def main():
         print("✅ Semua data selesai diambil dan disimpan.")
         print("🔄 Memproses menjadi format flat...")
         split_genres_to_rows()
-        print("✅ File flat_dramas.csv selesai dibuat.")
+        print("✅ File genres selesai dibuat.")
+        split_title_platforms()
+        print("✅ File platforms berhasil dibuat.")
+
     finally:
         print("🔚 Menutup browser...")
         try:
