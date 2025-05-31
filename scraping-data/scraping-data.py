@@ -86,7 +86,7 @@ def main():
 
     try:
         base_url = "https://mydramalist.com/search?adv=titles&ty=68&co=3&re=2015,2023&rt=1,10&st=3&so=top&page={}"
-        for page in range(1, 2):
+        for page in range(1, 95):
             url = base_url.format(page)
             drama_links = get_links_from_search_page(driver, url)
             if not drama_links:
