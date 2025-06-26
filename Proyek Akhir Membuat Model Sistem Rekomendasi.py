@@ -46,7 +46,13 @@ print('Jumlah data korean drama: ', len(kdrama_df.kdrama_id.unique()))
 print('Jumlah data reviews korean drama: ', len(reviews_df.user_id.unique()))
 print('Jumlah data genres korean drama: ', len(genres_df))
 
-"""# Univariate Exploratory Data Analysis
+"""**Insight:**
+
+- Dataset Korean drama memiliki sebanyak 500 id drama unik, menunjukkan cakupan yang cukup luas dari berbagai judul yang tersedia dalam sistem.
+- Terdapat 1.500 id pengguna unik yang memberikan review, mengindikasikan tingkat partisipasi pengguna yang cukup tinggi dalam memberikan evaluasi terhadap drama yang ditonton.
+- Dataset genre memuat 1.200 entri, yang menunjukkan bahwa satu drama bisa memiliki lebih dari satu genre, mendukung pendekatan Content-based Filtering berdasarkan preferensi genre.
+
+# Univariate Exploratory Data Analysis
 
 ## kdrama dataset
 """
@@ -56,13 +62,32 @@ kdrama_df.info()
 print('Banyak data: ', len(kdrama_df.kdrama_id.unique()))
 print('Judul Drama Korea: ', kdrama_df.drama_name.unique())
 
-"""## reviews dataset"""
+"""**Insight:**
+
+- Dataset terdiri dari 1.752 drama Korea unik, mencakup berbagai judul dari berbagai tahun dan genre, yang menjadi dasar yang kuat untuk membangun sistem rekomendasi.
+- Terdapat 17 fitur yang menggambarkan informasi penting setiap drama, seperti nama, tahun rilis, jumlah episode, durasi, hingga popularitas (pop) dan peringkat (rank), memberikan banyak variabel yang bisa dieksplorasi untuk analisis lebih lanjut.
+- Fitur director dan screenwriter memiliki banyak nilai missing (sekitar 40-45%), yang perlu dibersihkan.
+- Fitur duration juga memiliki sedikit missing value (24 data kosong), yang bisa memengaruhi analisis waktu tayang per episode.
+- Fitur drama_name mencakup berbagai judul unik seperti “Sing My Crush”, “D.P. Season 2”, “Iron Lady Cha”, hingga “Crow Building”, menunjukkan variasi yang luas dari genre dan era yang tercakup dalam dataset.
+- Kehadiran fitur seperti org_net (original network) dan aired_on untuk menganalisis popularitas drama berdasarkan saluran penayangan atau hari tayang.
+- Fitur pop dan rank untuk analisis lebih lanjut terhadap keterkaitan antara popularitas dengan peringkat, serta tren drama yang disukai oleh penonton.
+
+## reviews dataset
+"""
 
 reviews_df.info()
 
 reviews_df.describe()
 
-"""## genres dataset"""
+"""**Insight:**
+
+- Dataset berisi 10.625 review untuk story_score, acting_score, acting_cast_score, music_score, rewatch_value_score, overall_score.
+- acting_cast_score mendapat skor rata-rata tertinggi (8.4), sedangkan rewatch_score terendah (6.17), menunjukkan akting aktor paling diapresiasi, tapi minat menonton ulang rendah.
+- overall_score cukup tinggi (7.63), menandakan ulasan cenderung positif.
+- Hanya sedikit data yang hilang (review_text: 6 nilai kosong), secara umum dataset bersih.
+
+## genres dataset
+"""
 
 genres_df.info()
 
@@ -71,7 +96,15 @@ print('Genre Drama: ', genres_df.genres.unique())
 
 print('Platforms Drama: ', genres_df.where_to_watch.unique())
 
-"""Visualisasi Genre Paling Populer"""
+"""**Insight:**
+
+- Dataset terdiri dari 1.868 entri, mewakili drama dan genre terkait.
+- Kolom genres hampir lengkap, namun terdapat 7 data kosong yang perlu ditangani.
+- Kolom where_to_watch hanya terisi sekitar 68%, menunjukkan banyak drama tidak memiliki informasi platform penayangan yang bisa menjadi kendala dalam merekomendasikan berdasarkan ketersediaan platform.
+- Satu drama memiliki lebih dari satu genre, membuka peluang untuk analisis multi-label atau content-based filtering berbasis genre.
+
+### Visualisasi Genre Paling Populer
+"""
 
 genres_all = genres_df['genres'].dropna().str.split(', ')
 all_genres_flat = [genre for sublist in genres_all for genre in sublist]
@@ -88,10 +121,7 @@ plt.grid(axis='x', linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
 
-"""Visualisasi Plarform paling Populer
-
-Visualisasi Genre paling banyak
-"""
+"""### Visualisasi Plarform paling Populer"""
 
 platform_all = genres_df['where_to_watch'].dropna().str.split(', ')
 all_platform_flat = [platform for sublist in platform_all for platform in sublist]
@@ -139,7 +169,14 @@ reviews_df = reviews_df[cols]
 
 reviews_df.head()
 
-"""## Mapping genres_df"""
+"""**Insight:**
+
+- Mapping berhasil menghubungkan review dengan kdrama_id berdasarkan judul drama yang telah dibersihkan (lowercase & trim).
+- Semua judul di reviews_df cocok dengan data di kdrama_df karena tidak ada perbedaan dalam penulisan atau variasi nama.
+- Dengan penambahan kolom kdrama_id, integrasi antar dataset menjadi lebih konsisten, memungkinkan analisis atau sistem rekomendasi berbasis ID yang unik dan stabil.
+
+## Mapping genres_df
+"""
 
 # Membersihkan kdrama_name di genres_df agar konsisten
 genres_df['kdrama_name_clean'] = genres_df['title'].str.lower().str.strip()
@@ -163,14 +200,29 @@ genres_df = genres_df[cols]
 
 genres_df
 
-"""## Mengetahui Korean Drama Info"""
+"""**Insight:**
+
+- Proses mapping berhasil menambahkan kdrama_id ke sebagian besar entri genre berdasarkan judul drama.
+- Terdapat banyak judul (80+ drama) yang tidak ditemukan di kdrama_df, karena beberapa drama baru belum masuk ke kdrama_df.
+- Judul-judul yang tidak cocok ini akan diabaikan karena tidak diperlukan.
+- Setelah mapping dan reordering, struktur genres_df menjadi lebih siap untuk digabung dengan dataset utama dalam proses analisis atau rekomendasi.
+
+## Mengetahui Korean Drama Info
+"""
 
 kdrama_df.info()
 
 kdrama_info_df = kdrama_df[['kdrama_id', 'drama_name', 'year', 'tot_eps']]
 kdrama_info_df
 
-"""## Mengetahui Genre"""
+"""**Insight:**
+
+- Dataset mencakup 1.752 drama Korea dengan info penting seperti judul, tahun rilis, dan total episode.
+- Drama berasal dari rentang tahun 2015 sampai 2023.
+- Jumlah episode sangat bervariasi, dari mini drama 3 episode hingga drama panjang >100 episode, menunjukkan keberagaman format tayangan
+
+## Mengetahui Genre
+"""
 
 kdrama_genre_df = pd.merge(kdrama_df[['kdrama_id', 'drama_name']], genres_df[['kdrama_id', 'genres']], on='kdrama_id', how='left')
 kdrama_genre_df
@@ -180,7 +232,16 @@ print("Judul drama yang tidak ada genre:", missing_genres)
 
 print("Jumlah kdrama tanpa genre:", len(missing_genres))
 
-"""## Mengetahui Platforms Drama"""
+"""**Insight:**
+
+- Dari total 1.753 drama, sebanyak 8 drama tidak memiliki informasi genre.
+- Judul-judul tanpa genre kemungkinan adalah:
+  - Drama yang kurang populer.
+  - Drama pendek atau eksperimental yang belum diklasifikasikan secara genre.
+- Data ini relatif lengkap, dengan 99%+ drama memiliki informasi genre—cukup baik untuk sistem rekomendasi.
+
+## Mengetahui Platforms Drama
+"""
 
 kdrama_platform_df = pd.merge(
     kdrama_df[['kdrama_id', 'drama_name', 'org_net']],
@@ -197,7 +258,17 @@ kdrama_platform_df
 missing_ott = kdrama_platform_df[kdrama_platform_df['platform'].isna()]['drama_name'].unique()
 print("Jumlah kdrama tanpa platform:", len(missing_ott))
 
-"""## Menggabung Data dengan fitur Judul Kdrama, Genre, dan Original Network"""
+"""**Insight:**
+
+- Dari total 1.752 drama, terdapat 256 drama (≈14.6%) yang tidak memiliki informasi platform tayang.
+- Ini menunjukkan bahwa sebagian data tidak mencantumkan info OTT/platform secara eksplisit, meskipun sudah melakukan penggabungan dari dua sumber (org_net dan where_to_watch).
+- Drama tanpa platform bisa jadi:
+  - Drama lama yang tayang di TV konvensional dan belum tersedia di OTT.
+  - Drama yang kurang terdokumentasi atau eksklusif wilayah tertentu.
+- Meski begitu, sekitar 85% data memiliki info platform, cukup representatif untuk analisis distribusi drama per platform atau preferensi penonton berdasarkan tempat tayang.
+
+## Menggabung Data dengan fitur Judul Kdrama, Genre, dan Original Network
+"""
 
 all_kdrama_rate_df = reviews_df[['user_id', 'kdrama_id', 'story_score', 'rewatch_value_score', 'overall_score']]
 all_kdrama_rate_df.head()
@@ -211,7 +282,18 @@ all_kdrama_name_df.head()
 all_kdrama_df = pd.merge(all_kdrama_name_df, kdrama_platform_df[['kdrama_id', 'platform']], on='kdrama_id', how='left')
 all_kdrama_df.head()
 
-"""# Data Preparation
+"""**Insight:**
+
+- Dataset akhir all_kdrama_df menyatukan ulasan pengguna (user-based ratings) dengan metadata K-Drama, termasuk:
+  - drama_name (judul)
+  - year (tahun rilis)
+  - tot_eps (jumlah episode)
+  - genres (genre)
+  - platform (tempat tayang/OTT/stasiun TV)
+- Struktur yang ideal untuk Sistem rekomendasi berbasis konten (Content-Based Filtering) atau kolaboratif (Collaborative Filtering).
+- Khususnya variabel numerik (overall_score, story_score, rewatch_value_score) dan kategorikal (genre, platform) untuk sistem rekomendasi kolaboratif (Collaborative Filtering).
+
+# Data Preparation
 
 ## Mengatasi Missing Value
 """
@@ -232,7 +314,14 @@ all_kdrama_clean_df['platform'] = all_kdrama_clean_df['platform'].fillna('Not Av
 
 all_kdrama_clean_df.isna().sum()
 
-"""## Finishing"""
+"""**Insight:**
+
+- Semua missing value berhasil diatasi, sehingga dataset kini bebas dari nilai kosong (NaN).
+- Sebanyak 3 data dengan genre kosong dihapus, karena genre penting untuk analisis berbasis konten.
+- Sebanyak 233 data tanpa platform tayang diisi dengan label "Not Available", agar tetap bisa dianalisis tanpa kehilangan data ulasan.
+
+## Finishing
+"""
 
 fix_kdrama_df = all_kdrama_clean_df.copy()
 fix_kdrama_df.head()
@@ -256,7 +345,13 @@ print('Jumlah data duplikat:', dup_count)
 
 content_filter_df = content_filter_df.drop_duplicates(subset='kdrama_id').copy()
 
-"""## Text Normalization for Genres and Platforms
+"""**Insight:**
+
+- Dataset awal untuk rekomendasi terdiri dari 9.345 entri duplikat, namun hanya satu entri unik per kdrama_id yang diperlukan.
+- Setelah proses deduplikasi atau menghapus duplikasi data, hanya 1.752 drama unik yang tersisa sesuai dengan jumlah total drama pada kdrama_df.
+- Proses ini penting untuk memastikan bahwa setiap drama hanya direpresentasikan satu kali dalam model, sehingga hasil rekomendasi tidak bias atau redundan.
+
+## Text Normalization for Genres and Platforms
 
 Karena tiap genre dan platform memiliki banyak values, maka perlu displit terlebih dahulu untuk dijadikan bentuk list
 """
@@ -280,7 +375,14 @@ print(content_filter_df['platform'].iloc[5])
 
 content_filter_df
 
-"""## Label Encoding
+"""**Insight:**
+
+- Proses split dan trim berhasil mengubah kolom genres dan platform dari string menjadi list yang bersih dan terstruktur, untuk memudahkan dalam analisis dan pemrosesan lanjutan.
+- Normalisasi ini penting agar fitur-fitur seperti genre dan platform bisa digunakan dalam teknik multi-label encoding serta untuk menghitung kesamaan konten.
+- Contoh hasil seperti ['Viki', 'Prime Video', 'Netflix'] menunjukkan bahwa satu drama bisa tersedia di beberapa platform, yang relevan untuk rekomendasi berbasis preferensi OTT pengguna.
+- Genre juga telah dinormalisasi menjadi list seperti ['Action', 'Thriller', 'Drama'], yang akan sangat berguna dalam model content-based filtering berbasis kemiripan genre.
+
+## Label Encoding
 
 Melakukan label encoding untuk setiap genre dan platform pada dataset
 """
@@ -292,7 +394,14 @@ genre_encoded = mlb_genre.fit_transform(content_filter_df['genres'])
 
 genre_encoded
 
-"""## Cosine Similiarity
+"""**Insight:**
+
+- Proses label encoding menggunakan MultiLabelBinarizer berhasil mengubah setiap kombinasi genre menjadi representasi biner numerik (multi-hot encoded).
+- Setiap baris dalam array mewakili satu drama, dan setiap kolom mewakili satu genre unik. Nilai 1 menunjukkan genre tersebut dimiliki drama tersebut.
+- Representasi ini memungkinkan model untuk mengukur kemiripan antar drama berdasarkan genre, yang merupakan inti dari pendekatan Content-Based Filtering.
+- Encoding genre secara eksplisit seperti ini akan digunakan dalam perhitungan cosine similarity.
+
+## Cosine Similiarity
 
 Menghitung cosine similiarity untuk genre
 """
@@ -306,9 +415,21 @@ print('Shape:', genre_sim_df.shape)
 
 genre_sim_df.sample(10, axis=0).sample(5, axis=1)
 
-"""Menggabungkan hasil encode genre dan platform
+"""**Insight:**
+
+- Cosine similarity berhasil dihitung untuk semua 1.277 drama Korea, menghasilkan matriks kesamaan berukuran 1277 x 1277.
+- Nilai pada matriks menunjukkan tingkat kemiripan antar drama berdasarkan genre, dengan nilai:
+  - 1.0 → genre identik (drama dengan genre yang sama persis)
+  - 0.0 → tidak ada genre yang sama
+  - Nilai di antaranya → memiliki sebagian genre yang sama
+- Contoh hasil seperti:
+  - “Best Chicken” memiliki kemiripan 0.5 dengan “I’m a Mother, Too” → artinya ada tumpang tindih genre.
+  - “Hello Busking” memiliki kemiripan 1.0 dengan “Re-Feel” → kemungkinan besar memiliki genre yang identik.
+- Matriks ini menjadi dasar kuat dalam membangun sistem rekomendasi berbasis genre, karena bisa mengambil drama dengan nilai similarity tertinggi sebagai rekomendasi.
 
 ## Mendapatkan Rekomendasi
+
+### Genre Recommendation
 """
 
 def genre_recommendations(drama_title, similarity_matrix, drama_info, top_k=5):
@@ -356,6 +477,16 @@ content_filter_df[content_filter_df['drama_name'].eq(drama_name_key)]
 
 genre_recommendations(drama_name_key, genre_sim_df, content_filter_df, top_k=drama_total)
 
+"""**Insight**
+
+- Model berhasil merekomendasikan 10 drama dengan genre yang sangat mirip, khususnya dalam kombinasi Mystery, Law, Crime, dan Drama, sesuai dengan genre utama The Devil Judge.
+- Beberapa drama rekomendasi populer dan relevan:
+  - Big Mouth dan Justice memiliki kombinasi genre Mystery, Law, dan Drama, serta jumlah episode serupa.
+  - Law School dan Witch’s Court menonjolkan tema hukum dan investigasi, cocok untuk penonton The Devil Judge.
+
+### Genre Recommendation with Platform Filter
+"""
+
 def platform_filter_recommendations(drama_title, platform_choice, drama_info, similarity_matrix, top_k=drama_total):
     """
     Cari rekomendasi genre dulu, lalu filter hasil rekomendasi itu berdasarkan platform_choice.
@@ -392,6 +523,124 @@ platform_key = input('Masukkan Platform: ')
 platform_rekom = platform_filter_recommendations(drama_name_key, platform_key, content_filter_df, genre_sim_df)
 platform_rekom
 
+"""**Insight:**
+
+- Dari hasil rekomendasi genre The Devil Judge, terdapat 3 drama yang tersedia di platform Disney+, yaitu:
+  - Big Mouth
+  - Shadow Detective
+  - May It Please the Court
+- Ketiga drama tersebut memiliki genre serupa, yaitu:
+  - Mystery
+  - Law
+  - Drama
+  
+  Sehingga cocok untuk penonton dengan preferensi cerita serius dan investigatif.
+- Disney+ menyediakan pilihan drama sejenis meskipun tidak sebanyak platform lain.
+
+## Model Evaluation for Content-Based Filtering (Precision@K and Recall@K)
+
+Menyiapkan data ground truth
+"""
+
+# Interaksi pengguna dengan drama yang disukai (overall_score >= 0.7)
+user_history_df = fix_kdrama_df[fix_kdrama_df['overall_score'] >= 0.7][['user_id', 'kdrama_id']]
+
+"""Fungsi Rekomendasi untuk Content-Based Filtering (berdasarkan 1 drama terakhir)"""
+
+def recommend_for_user(user_id, user_history_df, similarity_df, top_k=10):
+  """
+  Rekomendasi top_k drama untuk user berdasarkan satu drama favorit terakhir.
+  """
+  # Ambil drama terakhir yang disukai oleh user
+  user_dramas = user_history_df[user_history_df['user_id'] == user_id]['kdrama_id']
+  if len(user_dramas) == 0:
+    return []
+
+  # Ambil nama drama dari kdrama_id
+  last_drama_id = user_dramas.iloc[-1]
+  drama_title = content_filter_df[content_filter_df['kdrama_id'] == last_drama_id]['drama_name'].values[0]
+
+  try:
+    recs = genre_recommendations(drama_title, similarity_df, content_filter_df, top_k=top_k)
+    return recs['kdrama_id'].values
+  except:
+    return []
+
+"""Fungsi Precision@K"""
+
+def precision_at_k_content(user_history_df, similarity_df, k=10):
+  users = user_history_df['user_id'].unique()
+  precisions = []
+
+  for user_id in users:
+    recs = recommend_for_user(user_id, user_history_df, similarity_df, top_k=k)
+    true_positives = user_history_df[
+      (user_history_df['user_id'] == user_id) &
+      (user_history_df['kdrama_id'].isin(recs))
+    ]
+
+    precision = len(true_positives) / k if k > 0 else 0
+    precisions.append(precision)
+
+  return np.mean(precisions)
+
+"""Hitung Precision@10"""
+
+precision_score = precision_at_k_content(user_history_df, genre_sim_df, k=10)
+print(f"Precision@10 untuk Content-Based Filtering: {precision_score:.4f}")
+
+"""Fungsi Recall@K"""
+
+def recall_at_k_content(user_history_df, similarity_df, k=10):
+  users = user_history_df['user_id'].unique()
+  recalls = []
+
+  for user_id in users:
+    recs = recommend_for_user(user_id, user_history_df, similarity_df, top_k=k)
+    actual_relevant = user_history_df[user_history_df['user_id'] == user_id]['kdrama_id'].values
+
+    if len(actual_relevant) == 0:
+      continue
+
+    true_positives = np.intersect1d(actual_relevant, recs)
+    recall = len(true_positives) / len(actual_relevant)
+    recalls.append(recall)
+
+  return np.mean(recalls) if recalls else 0
+
+"""Hitung Recall@10"""
+
+recall_score = recall_at_k_content(user_history_df, genre_sim_df, k=10)
+print(f"Recall@10 untuk Content-Based Filtering: {recall_score:.4f}")
+
+"""**Insight:**
+
+- Precision@10 = 0.0027
+  - Artinya, dari 10 rekomendasi yang diberikan kepada pengguna, hanya sekitar 0.27% yang benar-benar sesuai dengan drama yang pernah disukai oleh pengguna.
+- Recall@10 = 0.0048
+  - Artinya, dari seluruh drama yang disukai pengguna, hanya sekitar 0.48% yang berhasil ditangkap oleh rekomendasi sistem.
+- Nilai precision dan recall yang rendah mengindikasikan bahwa model Content-Based Filtering belum mampu memberikan rekomendasi yang sangat relevan. Hal ini terjadi karena keterbatasan fitur konten (genre saja) dan karena pendekatan yang hanya melihat satu drama terakhir user sebagai acuan.
+
+### Visualisasi
+"""
+
+metrics = ['Precision@10', 'Recall@10']
+values = [precision_score, recall_score]
+
+plt.figure(figsize=(6, 4))
+bars = plt.bar(metrics, values, color=['skyblue', 'salmon'])
+
+for bar in bars:
+  yval = bar.get_height()
+  plt.text(bar.get_x() + bar.get_width()/2, yval + 0.001, f'{yval:.4f}', ha='center', va='bottom')
+
+plt.ylim(0, max(values) + 0.01)
+plt.title('Evaluasi Content-Based Filtering')
+plt.ylabel('Score')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
 """# **Model Development dengan Collaborative Filtering**"""
 
 collaborative_filter_df = fix_kdrama_df[['user_id', 'kdrama_id', 'story_score', 'rewatch_value_score', 'overall_score']].copy()
@@ -401,7 +650,14 @@ coll_kdrama_filter_df = pd.merge(kdrama_info_df, kdrama_genre_df[['kdrama_id', '
 coll_kdrama_filter_df = coll_kdrama_filter_df.dropna(subset=['genres'])
 coll_kdrama_filter_df
 
-"""## user_id
+"""**Insight:**
+
+- Dataset Collaborative Filtering terdiri dari 10.622 interaksi antara pengguna dan drama, dengan skor seperti story_score, rewatch_value_score, dan overall_score.
+- Data ini telah dikombinasikan dengan informasi kdrama (judul, tahun, total episode, dan genre).
+- Hanya drama yang memiliki data genre lengkap yang digunakan, menghasilkan total 1.745 drama unik siap untuk proses rekomendasi.
+- Struktur data ini ideal untuk membangun model user-item matrix berbasis rating (Collaborative Filtering), yang memungkinkan rekomendasi berdasarkan preferensi pengguna yang mirip.
+
+## user_id
 
 Mengubah user_id menjadi list tanpa nilai yang sama
 """
@@ -428,7 +684,14 @@ collaborative_filter_df['user'] = collaborative_filter_df['user_id'].map(user_to
 num_users = len(user_to_user_encoded)
 print(num_users)
 
-"""## kdrama_id
+"""**Insight:**
+
+- Terdapat 4.562 pengguna unik dalam data rating.
+- Setiap user_id telah berhasil diubah (encoded) menjadi representasi numerik agar dapat digunakan dalam model machine learning.
+- Proses ini memungkinkan model membaca dan mempelajari pola rating antar pengguna, yang sangat penting dalam pendekatan Collaborative Filtering.
+- Mapping dua arah (user_id <-> encoded_user) disiapkan untuk interpretasi hasil rekomendasi ke ID asli pengguna.
+
+## kdrama_id
 
 Mengubah kdrama_ids menjadi list tanpa nilai yang sama
 """
@@ -457,7 +720,14 @@ collaborative_filter_df
 num_kdrama = len(kdrama_to_kdrama_encoded)
 print(num_kdrama)
 
-"""## overall_score
+"""**Insight:**
+
+- Total terdapat 1.277 drama Korea unik dalam dataset rating pengguna.
+- Setiap kdrama_id telah berhasil diubah menjadi representasi numerik untuk memudahkan pemrosesan oleh model rekomendasi.
+- Proses ini memungkinkan model untuk mengidentifikasi pola minat pengguna terhadap drama-drama tertentu, berdasarkan skor yang diberikan.
+- Seperti pada pengguna, disiapkan juga mapping dua arah (kdrama_id <-> encoded_kdrama) agar hasil rekomendasi dapat diinterpretasikan kembali ke ID asli atau judul drama.
+
+## overall_score
 
 Mengubah nilai overall_score menjadi nilai float
 """
@@ -476,7 +746,13 @@ print('Min Rating: {}, Max Rating: {}'.format(
     min_overall_score, max_overall_score
 ))
 
-"""## Membagi Data untuk Training dan Validasi
+"""**Insight:**
+
+- Nilai overall_score dari pengguna telah dikonversi ke tipe float32 untuk efisiensi dan kompatibilitas model.
+- Rentang skor berada antara 1.0 (terendah) hingga 10.0 (tertinggi).
+- Rentang ini menunjukkan skala penuh penilaian yang digunakan pengguna untuk menilai kualitas keseluruhan sebuah drama, dan akan menjadi variabel target utama dalam model rekomendasi berbasis rating.
+
+## Membagi Data untuk Training dan Validasi
 
 Mengacak dataset
 """
@@ -507,7 +783,18 @@ x_train, x_val, y_train, y_val = (
 
 print(x, y)
 
-"""## Proses Training
+"""**Insight:**
+
+- Total data interaksi pengguna dan K-Drama: 10.622 baris.
+- Encoding dilakukan:
+  - user_id dan kdrama_id telah diubah menjadi angka (encoded) agar dapat digunakan oleh model.
+  - Skor overall_score telah dinormalisasi ke rentang 0 hingga 1 menggunakan Min-Max Scaling.
+- Pembagian data:
+  - 80% data (8.497 baris) digunakan sebagai data latih (training).
+  - 20% data (2.125 baris) digunakan sebagai data validasi (validation).
+- Tujuannya adalah untuk membangun model rekomendasi yang dapat memprediksi skor user terhadap K-Drama yang belum ditonton, dengan mempelajari pola dari data pelatihan dan mengevaluasinya dengan data validasi.
+
+## Proses Training
 
 Pada tahap ini, model menghitung skor kecocokan antara pengguna dan korean drama dengan teknik embedding. Pertama, kita melakukan proses embedding terhadap data user dan kdrama. Selanjutnya, lakukan operasi perkalian dot product antara embedding user dan kdrama. Selain itu, kita juga dapat menambahkan bias untuk setiap user dan kdrama. Skor kecocokan ditetapkan dalam skala [0,1] dengan fungsi aktivasi sigmoid.
 """
@@ -588,7 +875,23 @@ print(f"RMSE: {rmse:.4f}")
 mae = mean_absolute_error(y_val, y_pred)
 print(f"MAE: {mae:.4f}")
 
-"""## Visualisasi Metrik"""
+"""**Insight:**
+
+- Model RecommenderNet telah berhasil dilatih menggunakan Collaborative Filtering berbasis Embedding.
+- Arsitektur model:
+  - Embedding untuk user dan K-Drama.
+  - Penambahan bias pada kedua entitas.
+  - Output diproses melalui fungsi aktivasi sigmoid untuk skala skor [0–1].
+- Proses training menggunakan:
+  - Adam Optimizer dengan learning_rate=0.0001
+  - EarlyStopping dan ReduceLROnPlateau untuk mencegah overfitting.
+- Evaluasi hasil model:
+  - RMSE (Root Mean Squared Error): 0.2186
+  - MAE (Mean Absolute Error): 0.1800
+- Model menunjukkan performansi yang baik dalam memprediksi skor pengguna terhadap K-Drama, dengan error yang relatif rendah. Ini menunjukkan bahwa model dapat digunakan untuk memberikan rekomendasi yang dipersonalisasi dengan cukup akurat.
+
+## Visualisasi Metrik
+"""
 
 plt.plot(history.history['root_mean_squared_error'])
 plt.plot(history.history['val_root_mean_squared_error'])
@@ -598,7 +901,13 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
-"""## Mendapatkan Rekomendasi"""
+"""**Insight**:
+
+- Grafik menunjukkan penurunan stabil pada metrik root_mean_squared_error baik untuk data training maupun validasi.
+- Tidak terdapat indikasi overfitting, karena garis val_loss terus mengikuti arah yang mirip dengan train_loss dan bahkan terus membaik.
+
+## Mendapatkan Rekomendasi
+"""
 
 final_kdrama_df = coll_kdrama_filter_df
 score_kdrama_df = all_kdrama_rate_df.copy()
@@ -658,3 +967,10 @@ print('\nTop 10 kdrama recommendation')
 
 recommended_kdrama = final_kdrama_df[final_kdrama_df['kdrama_id'].isin(recommended_kdrama_ids)]
 print_kdrama_recommendation(recommended_kdrama)
+
+"""**Insight:**
+
+- User yang Diambil: 247f516a3e3b30ac9280f13666d8df92
+- Model bekerja dengan baik: dapat memberikan rekomendasi personal yang masuk akal berdasarkan histori tontonan.
+- Rekomendasi bervariasi namun konsisten dengan selera user.
+"""
