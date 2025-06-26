@@ -48,9 +48,9 @@ print('Jumlah data genres korean drama: ', len(genres_df))
 
 """**Insight:**
 
-- Dataset Korean drama memiliki sebanyak 500 id drama unik, menunjukkan cakupan yang cukup luas dari berbagai judul yang tersedia dalam sistem.
-- Terdapat 1.500 id pengguna unik yang memberikan review, mengindikasikan tingkat partisipasi pengguna yang cukup tinggi dalam memberikan evaluasi terhadap drama yang ditonton.
-- Dataset genre memuat 1.200 entri, yang menunjukkan bahwa satu drama bisa memiliki lebih dari satu genre, mendukung pendekatan Content-based Filtering berdasarkan preferensi genre.
+- Dataset Korean drama memiliki sebanyak 1752 id drama unik, menunjukkan cakupan yang cukup luas dari berbagai judul yang tersedia dalam sistem.
+- Terdapat 4562 id pengguna unik yang memberikan review, mengindikasikan tingkat partisipasi pengguna yang cukup tinggi dalam memberikan evaluasi terhadap drama yang ditonton.
+- Dataset genre memuat 1868 entri, yang menunjukkan bahwa satu drama bisa memiliki lebih dari satu genre, mendukung pendekatan Content-based Filtering berdasarkan preferensi genre.
 
 # Univariate Exploratory Data Analysis
 
